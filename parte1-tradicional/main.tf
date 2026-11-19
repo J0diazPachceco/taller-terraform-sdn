@@ -64,7 +64,7 @@ resource "aws_route_table_association" "a" {
 }
 
 resource "aws_security_group" "lab" {
-  name   = "sg-lab-redes"
+  name   = "lab-redes-sg"
   vpc_id = aws_vpc.main.id
 
   ingress {

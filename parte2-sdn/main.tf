@@ -36,7 +36,7 @@ data "aws_subnet" "ingenieria" {
 }
 
 resource "aws_security_group" "sdn" {
-  name   = "sg-sdn"
+  name   = "sdn-lab-sg"
   vpc_id = data.aws_vpc.main.id
 
   ingress {
