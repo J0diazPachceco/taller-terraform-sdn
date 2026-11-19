@@ -1,0 +1,66 @@
+name: Terraform AWS - Taller Redes y Servicios
+
+on:
+  workflow_dispatch:
+    inputs:
+      stack:
+        description: "Carpeta a desplegar"
+        type: choice
+        options: [parte1-tradicional, parte2-sdn]
+        default: parte1-tradicional
+      accion:
+        description: "Acción de Terraform"
+        type: choice
+        options: [plan, apply, destroy]
+        default: plan
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-2
+  ROLE_ARN: arn:aws:iam::923788823291:role/gh-actions-terraform
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.stack }}
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Credenciales temporales de AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+
+      - name: Init
+        run: terraform init -input=false
+
+      - name: Validate
+        run: terraform validate
+
+      - name: Plan
+        if: inputs.accion == 'plan'
+        run: terraform plan -input=false
+
+      - name: Apply
+        if: inputs.accion == 'apply'
+        run: terraform apply -auto-approve -input=false
+
+      - name: Outputs
+        if: inputs.accion == 'apply'
+        run: terraform output
+
+      - name: Destroy
+        if: inputs.accion == 'destroy'
+        run: terraform destroy -auto-approve -input=false
