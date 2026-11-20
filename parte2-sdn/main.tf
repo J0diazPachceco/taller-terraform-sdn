@@ -106,14 +106,15 @@ resource "aws_instance" "ryu" {
   user_data = <<-EOT
     #!/bin/bash
     apt-get update -y
-    DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip python3-ryu
+    DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip
+    pip3 install ryu "eventlet==0.30.2"
     cat > /etc/systemd/system/ryu.service <<'EOS'
     [Unit]
     Description=Ryu SDN Controller
     After=network-online.target
     Wants=network-online.target
     [Service]
-    ExecStart=/usr/bin/env ryu-manager ryu.app.simple_switch_13 --verbose
+    ExecStart=/usr/local/bin/ryu-manager ryu.app.simple_switch_13 --verbose
     [Install]
     WantedBy=multi-user.target
     EOS
